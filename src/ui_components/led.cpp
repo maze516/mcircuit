@@ -11,7 +11,9 @@ void LEDUIComponent::paint(QPainter &painter) {
   } else {
     painter.fillPath(path, Qt::gray);
   }
-  painter.setPen(Qt::black);
+  
+  painter.setPen(QPen(Qt::black, 2.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+            Qt::PenJoinStyle::RoundJoin));
   painter.drawEllipse(rect);
 }
 

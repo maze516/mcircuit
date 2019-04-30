@@ -8,8 +8,11 @@
 #include <memory>
 
 struct Schematic {
+  Schematic(mcircuit::CustomComponent *component)
+      : component{component}, wireManager{component} {}
+
+  std::unique_ptr<mcircuit::CustomComponent> component;
   std::map<unsigned, std::unique_ptr<UIComponentBase>> uiComponents;
-  mcircuit::CustomComponent component;
   mcircuit::WireManager wireManager;
 };
 

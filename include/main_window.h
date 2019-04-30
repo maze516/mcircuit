@@ -20,7 +20,7 @@
 #include <mcircuit/components/switch.h>
 #include <tuple>
 
-using Tupl = std::tuple<int, bool>;
+using Tupl = std::tuple<unsigned, bool>;
 Q_DECLARE_METATYPE(Tupl)
 
 class MainWindow : public QWidget {
@@ -39,7 +39,7 @@ private:
     registry.registerUIComponent(lastRegisteredId++, [this](unsigned id) {
       auto component = new ComponentType(id);
       return new UIComponentType(component, context,
-                                 circuitView->getWireManager());
+                                 currentSchematic->wireManager);
     });
   }
 

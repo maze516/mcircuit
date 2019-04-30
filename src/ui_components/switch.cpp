@@ -13,7 +13,8 @@ void SwitchUIComponent::paint(QPainter &painter) {
       painter.fillRect(rect, Qt::gray);
     }
 
-    painter.setPen(Qt::black);
+    painter.setPen(QPen(Qt::black, 2.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+            Qt::PenJoinStyle::RoundJoin));
     painter.drawRect(rect);
   }
 }

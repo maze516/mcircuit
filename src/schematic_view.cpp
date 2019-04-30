@@ -4,12 +4,10 @@
 #include <iostream>
 
 SchematicView::SchematicView(Context &context)
-    : context{context}, renderer{context}, schematic{schematic} {
+    : context{context}, renderer{context} {
   setMode(Mode::Editing);
   setMouseTracking(true);
   setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
-  wireDrawingController.setWireManager(&schematic->wireManager);
 
   running = true;
 
@@ -29,7 +27,7 @@ SchematicView::SchematicView(Context &context)
     std::chrono::nanoseconds accum(0);
 
     while (running) {
-      std::chrono::nanoseconds rate((unsigned)(1e9 / (float)5000));
+      std::chrono::nanoseconds rate((unsigned)(1e9 / 5000.f));
 
       auto curr = clock::now();
       auto delta = curr - old;
@@ -41,7 +39,10 @@ SchematicView::SchematicView(Context &context)
 
         {
           std::lock_guard<std::mutex> lk{mutex};
-          schematic->component.updateState();
+
+          if (schematic != nullptr) {
+            schematic->component->updateState();
+          }
         }
 
         ticks++;
@@ -61,6 +62,9 @@ SchematicView::SchematicView(Context &context)
 }
 
 void SchematicView::paintEvent(QPaintEvent *event) {
+  if (schematic == nullptr)
+    return;
+
   std::lock_guard<std::mutex> lk{mutex};
 
   QPainter painter(this);
@@ -159,7 +163,7 @@ void SchematicView::mousePressEvent(QMouseEvent *event) {
       if (event->button() == Qt::LeftButton) {
         bool ok = true;
 
-        for (auto &[id, uiComponent] : uiComponents) {
+        for (auto &[id, uiComponent] : schematic->uiComponents) {
           if (uiComponent->getBoundingBox().intersects(
                   placingComponent->getBoundingBox())) {
             ok = false;
@@ -168,18 +172,22 @@ void SchematicView::mousePressEvent(QMouseEvent *event) {
         }
 
         if (ok) {
-          main->addComponent(placingComponent->getComponent());
+          schematic->component->addComponent(placingComponent->getComponent());
           placingComponent->init();
-          uiComponents.emplace(placingComponent->getId(),
-                               std::move(placingComponent));
+          schematic->uiComponents.emplace(placingComponent->getId(),
+                                          std::move(placingComponent));
         }
       }
     }
 
     if (event->button() == Qt::LeftButton) {
-      wireDrawingController.startWirePlacement((mousePosition - transl) /
-                                               context.gridDelta);
+      wireDrawingController.startWirePlacement(
+          WireDrawingController::State::Placing,
+          (mousePosition - transl) / context.gridDelta);
     } else if (event->button() == Qt::RightButton) {
+      wireDrawingController.startWirePlacement(
+          WireDrawingController::State::Removing,
+          (mousePosition - transl) / context.gridDelta);
     }
   }
 }
@@ -221,8 +229,6 @@ void SchematicView::stopSimulation() {
   simulationThread.join();
 }
 
-mcircuit::WireManager &SchematicView::getWireManager() { return wireManager; }
-
 void SchematicView::setMode(SchematicView::Mode mode) {
   this->mode = mode;
 
@@ -233,12 +239,10 @@ void SchematicView::setMode(SchematicView::Mode mode) {
   }
 }
 
-void SchematicView::setComponent(mcircuit::CustomComponent *component) {
-  main = component;
-}
-
 UIComponentBase *SchematicView::getComponentOnPosition(const QPoint &position) {
-  for (auto &[id, uiComponent] : uiComponents) {
+  if (schematic == nullptr)
+    return nullptr;
+  for (auto &[id, uiComponent] : schematic->uiComponents) {
     if (uiComponent->getBoundingBox().contains(position)) {
       return uiComponent.get();
     }
@@ -249,4 +253,8 @@ UIComponentBase *SchematicView::getComponentOnPosition(const QPoint &position) {
 
 UIComponentBase *SchematicView::getComponentUnderCursor() {
   return getComponentOnPosition(mousePosition - transl);
+}
+void SchematicView::setSchematic(Schematic *schematic) {
+  this->schematic = schematic;
+  wireDrawingController.setWireManager(&schematic->wireManager);
 }

@@ -6,7 +6,7 @@
 
 class WireDrawingController {
 public:
-  enum class State { Inactive, Placing, Unallowed };
+  enum class State { Inactive, Placing, Removing, Unallowed };
 
   WireDrawingController();
 
@@ -14,7 +14,7 @@ public:
 
   State getState() const;
 
-  void startWirePlacement(const QPoint &position);
+  void startWirePlacement(State action, const QPoint &position);
 
   void setWireEndPosition(const QPoint &position);
 

@@ -23,7 +23,7 @@ void Renderer::drawWirePreview(WireDrawingController::State state,
     color = Qt::black;
   }
 
-  QPen pen(color, 2.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+  QPen pen(color, 3.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
            Qt::PenJoinStyle::RoundJoin);
 
   painter->setPen(pen);
@@ -38,9 +38,9 @@ void Renderer::drawWirePreview(WireDrawingController::State state,
 }
 
 void Renderer::drawWires(const mcircuit::WireManager &wireManager) const {
-  QPen pen1(Qt::black, 2.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+  QPen pen1(Qt::black, 3.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
             Qt::PenJoinStyle::RoundJoin);
-  QPen pen2(Qt::black, 4.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+  QPen pen2(Qt::black, 8.0, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
             Qt::PenJoinStyle::RoundJoin);
 
   auto &wires = wireManager.getWires();
@@ -104,7 +104,8 @@ void Renderer::createGridPixmap() {
 
   painter.fillRect(0, 0, gridPixmap.width(), gridPixmap.height(),
                    CIRCUIT_BACKGROUND_COLOR);
-  painter.setPen(CIRCUIT_GRID_COLOR);
+  painter.setPen(QPen(Qt::black, 1.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+                      Qt::PenJoinStyle::RoundJoin));
 
   for (auto x = 0; x < gridPixmap.width(); x += gridDelta) {
     for (auto y = 0; y < gridPixmap.height(); y += gridDelta) {

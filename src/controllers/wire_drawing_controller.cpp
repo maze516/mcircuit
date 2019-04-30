@@ -11,15 +11,18 @@ WireDrawingController::State WireDrawingController::getState() const {
   return state;
 }
 
-void WireDrawingController::startWirePlacement(const QPoint &position) {
+void WireDrawingController::startWirePlacement(State action,
+                                               const QPoint &position) {
+  assert(action == State::Placing || action == State::Removing);
+
   wireStart = position;
   wireEnd = position;
 
-  state = State::Placing;
+  state = action;
 }
 
 void WireDrawingController::setWireEndPosition(const QPoint &position) {
-  if (state != State::Placing)
+  if (state != State::Placing && state != State::Removing)
     return;
 
   wireEnd = position;
@@ -35,17 +38,28 @@ void WireDrawingController::setWireEndPosition(const QPoint &position) {
 }
 
 void WireDrawingController::endWirePlacement() {
+  if (wireManager == nullptr)
+    return;
+
   if (wireStart == wireEnd) {
     wireManager->overlap(wireStart.x(), wireStart.y());
   } else {
-
-    wireManager->placeWire(mcircuit::WireManager::Horizontal, wire1.y1(),
-                           wire1.x1(), wire1.x2());
-    wireManager->placeWire(mcircuit::WireManager::Vertical, wire2.x1(),
-                           wire2.y1(), wire2.y2());
+    if (state == State::Placing) {
+      wireManager->placeWire(mcircuit::WireManager::Horizontal, wire1.y1(),
+                             wire1.x1(), wire1.x2());
+      wireManager->placeWire(mcircuit::WireManager::Vertical, wire2.x1(),
+                             wire2.y1(), wire2.y2());
+    } else if (state == State::Removing) {
+      wireManager->removeWire(mcircuit::WireManager::Horizontal, wire1.y1(),
+                              wire1.x1(), wire1.x2());
+      wireManager->removeWire(mcircuit::WireManager::Vertical, wire2.x1(),
+                              wire2.y1(), wire2.y2());
+    }
   }
 
   state = State::Inactive;
+  wire1 = QLine();
+  wire2 = QLine();
 }
 
 std::tuple<QLine, QLine> WireDrawingController::getPreviewWire() {

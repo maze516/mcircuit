@@ -5,13 +5,13 @@
 #include "controllers/wire_drawing_controller.h"
 #include "mcircuit/wire_manager.h"
 #include "renderer.h"
+#include "schematic.h"
 #include "ui_component.h"
 #include <QWidget>
 #include <condition_variable>
 #include <mcircuit/components/custom_component.h>
 #include <mutex>
 #include <thread>
-#include "schematic.h"
 
 class SchematicView : public QWidget {
   Q_OBJECT
@@ -35,7 +35,7 @@ public:
 
   void setMode(Mode mode);
 
-  void setComponent(mcircuit::CustomComponent *component);
+  void setSchematic(Schematic *schematic);
 
 signals:
   void uiComponentSelected(UIComponentBase *component);
@@ -44,7 +44,7 @@ private:
   UIComponentBase *getComponentOnPosition(const QPoint &position);
   UIComponentBase *getComponentUnderCursor();
 
-  Schematic *schematic;
+  Schematic *schematic = nullptr;
 
   WireDrawingController wireDrawingController;
 

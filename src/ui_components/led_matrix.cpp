@@ -20,6 +20,11 @@ void LEDMatrixUIComponent::paint(QPainter &painter) {
       painter.fillRect(rect, color);
     }
   }
+  
+  QRect rect(startPos, QSize(component->getLEDWidth() * context.gridDelta, component->getLEDHeight() * context.gridDelta));
+  painter.setPen(QPen(Qt::black, 2.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+            Qt::PenJoinStyle::RoundJoin));
+  painter.drawRect(rect);
 }
 
 QRect LEDMatrixUIComponent::getBoundingBox() {

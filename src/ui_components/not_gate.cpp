@@ -7,7 +7,8 @@ void NotGateUIComponent::paint(QPainter &painter) {
   rect.translate(getPosition() * gridDelta);
 
   painter.fillRect(rect, Qt::white);
-  painter.setPen(Qt::black);
+  painter.setPen(QPen(Qt::black, 2.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
+            Qt::PenJoinStyle::RoundJoin));
   painter.drawRect(rect);
 
   auto font = painter.font();

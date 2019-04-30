@@ -20,18 +20,18 @@ void WireManager::removePin(int x, int y) {
 }
 
 void WireManager::overlap(int x, int y) {
-  if (overlaps.find({x, y}) == overlaps.end())
-    overlaps.insert({x, y});
-  else
-    overlaps.erase({x, y});
-
   for (auto [p, cp] : pins) {
     auto [x, y] = p;
     depropagate(x, y);
   }
 
+  if (overlaps.find({x, y}) == overlaps.end())
+    overlaps.insert({x, y});
+  else
+    overlaps.erase({x, y});
+
   swipe(Vertical, x);
-  swipe(Horizontal, y);
+  swipe(Horizontal, y); // TODO: Check if this one is needed.
 
   for (auto [p, cp] : pins) {
     auto [x, y] = p;
@@ -43,7 +43,8 @@ void WireManager::placeWire(Orientation orientation, int p, int r1, int r2) {
   if (r1 == r2)
     return;
 
-  std::tie(r1, r2) = std::make_tuple(std::min(r1, r2), std::max(r1, r2));
+  if (r1 > r2)
+    std::swap(r1, r2);
 
   for (auto [p, cp] : pins) {
     auto [x, y] = p;
@@ -51,6 +52,31 @@ void WireManager::placeWire(Orientation orientation, int p, int r1, int r2) {
   }
 
   connect(orientation, p, r1, r2);
+
+  swipe(orientation, p);
+
+  for (auto [p, cp] : pins) {
+    auto [x, y] = p;
+    propagate(x, y);
+  }
+}
+
+void WireManager::removeWire(WireManager::Orientation orientation, int p,
+                             int r1, int r2) {
+  if (r1 == r2)
+    return;
+
+  if (r1 > r2)
+    std::swap(r1, r2);
+
+  for (auto [p, cp] : pins) {
+    auto [x, y] = p;
+    depropagate(x, y);
+  }
+
+  // Insert temporary points of removal
+  wires[orientation][p].insert(LinePoint{r1, 0, r2, true, true});
+  wires[orientation][p].insert(LinePoint{r2, 0, r1, true, true});
 
   swipe(orientation, p);
 
@@ -110,8 +136,16 @@ void WireManager::swipe(WireManager::Orientation orientation, int p,
 
   std::optional<int> start;
 
+  bool activeRemoval = false;
+
   for (auto &point : points) {
     if (point.fixed) {
+      if (activeRemoval && point.removal) {
+        start = point.position;
+        activeRemoval = false;
+        continue;
+      }
+
       if (start) {
         if (point.position - *start > 0) {
           newPoints.insert(LinePoint{*start, newIndex, point.position});
@@ -119,7 +153,11 @@ void WireManager::swipe(WireManager::Orientation orientation, int p,
           newIndex++;
         }
 
-        if (indexes.size() > 0)
+        if (point.removal) {
+          activeRemoval = true;
+        }
+
+        if (indexes.size() > 0 && !point.removal)
           start = point.position;
         else
           start = std::nullopt;

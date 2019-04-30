@@ -18,6 +18,7 @@ class WireManager {
     unsigned index;
     int endPosition;
     bool fixed = false;
+    bool removal = false;
 
     bool operator<(const LinePoint &other) const {
       return position == other.position ? index > other.index
@@ -42,6 +43,7 @@ public:
   void overlap(int x, int y);
 
   void placeWire(Orientation orientation, int p, int r1, int r2);
+  void removeWire(Orientation orientation, int p, int r1, int r2);
 
   const Wires &getWires() const;
   const Pins &getPins() const;

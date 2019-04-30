@@ -29,49 +29,50 @@ void MainWindow::initUi() {
 
   schematics.emplace_back(new mcircuit::CustomComponent(0));
   schematics.emplace_back(new mcircuit::CustomComponent(1));
+  currentSchematic = nullptr;
 
   auto propertyModel = new PropertyEditorModel(this);
   propertyEditor->setModel(propertyModel);
-  circuitView = new SchematicView(context, schematics[0].get(), this);
+  circuitView = new SchematicView(context);
   propertyModel->setCircuitView(circuitView);
 
   auto gatesRoot = new QStandardItem("Gates");
   auto notItem = new QStandardItem("Not");
-  notItem->setData(QVariant::fromValue(std::make_tuple(0, false)));
+  notItem->setData(QVariant::fromValue(std::make_tuple(0u, false)));
   gatesRoot->appendRow(notItem);
 
   auto andItem = new QStandardItem("And");
-  andItem->setData(QVariant::fromValue(std::make_tuple(1, false)));
+  andItem->setData(QVariant::fromValue(std::make_tuple(1u, false)));
   gatesRoot->appendRow(andItem);
 
   auto orItem = new QStandardItem("Or");
-  orItem->setData(QVariant::fromValue(std::make_tuple(2, false)));
+  orItem->setData(QVariant::fromValue(std::make_tuple(2u, false)));
   gatesRoot->appendRow(orItem);
 
   auto xorItem = new QStandardItem("Xor");
-  xorItem->setData(QVariant::fromValue(std::make_tuple(3, false)));
+  xorItem->setData(QVariant::fromValue(std::make_tuple(3u, false)));
   gatesRoot->appendRow(xorItem);
 
   auto ioRoot = new QStandardItem("IO");
   auto switchItem = new QStandardItem("Switch");
-  switchItem->setData(QVariant::fromValue(std::make_tuple(4, false)));
+  switchItem->setData(QVariant::fromValue(std::make_tuple(4u, false)));
   ioRoot->appendRow(switchItem);
 
   auto ledItem = new QStandardItem("LED");
-  ledItem->setData(QVariant::fromValue(std::make_tuple(5, false)));
+  ledItem->setData(QVariant::fromValue(std::make_tuple(5u, false)));
   ioRoot->appendRow(ledItem);
 
   auto ledMatrixItem = new QStandardItem("LED Matrix");
-  ledMatrixItem->setData(QVariant::fromValue(std::make_tuple(6, false)));
+  ledMatrixItem->setData(QVariant::fromValue(std::make_tuple(6u, false)));
   ioRoot->appendRow(ledMatrixItem);
 
   auto schematicsRoot = new QStandardItem("Schematics");
   auto mainSchematicItem = new QStandardItem("main");
-  mainSchematicItem->setData(QVariant::fromValue(std::make_tuple(0, true)));
+  mainSchematicItem->setData(QVariant::fromValue(std::make_tuple(0u, true)));
   schematicsRoot->appendRow(mainSchematicItem);
 
   auto customSchematicItem = new QStandardItem("custom");
-  customSchematicItem->setData(QVariant::fromValue(std::make_tuple(1, true)));
+  customSchematicItem->setData(QVariant::fromValue(std::make_tuple(1u, true)));
   schematicsRoot->appendRow(customSchematicItem);
 
   model.appendRow(schematicsRoot);
@@ -89,10 +90,11 @@ void MainWindow::initUi() {
             auto data = item->data();
 
             auto [id, isSchematic] =
-                item->data().value<std::tuple<int, bool>>();
+                item->data().value<std::tuple<unsigned, bool>>();
 
             if (isSchematic) {
-              circuitView->setComponent(schematics[id].get());
+              currentSchematic = &schematics[id];
+              circuitView->setSchematic(currentSchematic);
             }
           });
 
@@ -100,7 +102,12 @@ void MainWindow::initUi() {
     auto item = model.itemFromIndex(index);
     auto data = item->data();
 
-    auto [id, isSchematic] = item->data().value<std::tuple<int, bool>>();
+    if (!item->data().canConvert<std::tuple<unsigned, bool>>()) {
+        circuitView->setPlacingComponent(nullptr);
+        return;
+    }
+          
+    auto [id, isSchematic] = item->data().value<std::tuple<unsigned, bool>>();
 
     if (isSchematic)
       return;
