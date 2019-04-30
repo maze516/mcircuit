@@ -10,8 +10,12 @@ class CustomComponentUIComponent
 public:
   using UIComponent::UIComponent;
 
+  void notifySchematicChanged(mcircuit::CustomComponent *current);
+
   void paint(QPainter &painter) override;
   QRect getBoundingBox() override;
+
+  void createPins() override;
 };
 
 #endif

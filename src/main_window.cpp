@@ -103,14 +103,24 @@ void MainWindow::initUi() {
     auto data = item->data();
 
     if (!item->data().canConvert<std::tuple<unsigned, bool>>()) {
-        circuitView->setPlacingComponent(nullptr);
-        return;
+      circuitView->setPlacingComponent(nullptr);
+      return;
     }
-          
+
     auto [id, isSchematic] = item->data().value<std::tuple<unsigned, bool>>();
 
-    if (isSchematic)
+    if (isSchematic) {
+      auto component = static_cast<mcircuit::CustomComponent *>(
+          schematics[id].component->clone(lastId++));
+      auto uiComponent = new CustomComponentUIComponent(
+          component, context, currentSchematic->wireManager);
+
+      schematics[0].references.push_back(uiComponent);
+
+      circuitView->setPlacingComponent(uiComponent);
+
       return;
+    }
 
     auto componentId = id;
 
