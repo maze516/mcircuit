@@ -31,9 +31,9 @@ public:
 protected:
   std::array<std::unordered_map<unsigned, Pin>, 2> pins;
 
-  Pin *addInputPin(Pin pin);
-  Pin *addOutputPin(Pin pin);
-  Pin *addPin(PinType type, Pin pin);
+  virtual Pin *addInputPin(Pin pin);
+  virtual Pin *addOutputPin(Pin pin);
+  virtual Pin *addPin(PinType type, Pin pin);
   void removePin(unsigned id);
 
 private:

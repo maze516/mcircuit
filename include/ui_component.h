@@ -25,7 +25,7 @@ public:
   void setProperty(const PropertyId &property, PropertyValue value);
   virtual void processProperty(const PropertyId &property, PropertyValue value);
 
-  unsigned getId() const;
+  virtual unsigned getId() const;
 
   virtual ~UIComponentBase() = default;
 

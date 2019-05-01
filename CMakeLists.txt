@@ -24,7 +24,8 @@ set(QMCIRCUIT_SOURCES
         src/controllers/wire_drawing_controller.cpp
         src/ui_components/led_matrix.cpp
         src/ui_components/custom_component.cpp
-        src/schematic.cpp)
+        src/schematic.cpp
+        src/ui_components/pin.cpp)
 
 set(QMCIRCUIT_HEADERS
         include/main_window.h
@@ -41,7 +42,8 @@ set(QMCIRCUIT_HEADERS
         include/controllers/wire_drawing_controller.h
         include/ui_components/led_matrix.h
         include/ui_components/custom_component.h
-        include/schematic.h)
+        include/schematic.h
+        include/ui_components/pin.h)
 
 add_executable(qmcircuit ${QMCIRCUIT_SOURCES} src/main.cpp ${QMCIRCUIT_HEADERS})
 

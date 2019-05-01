@@ -1,4 +1,6 @@
 #include "main_window.h"
+#include "ui_components/pin.h"
+#include <iostream>
 
 MainWindow::MainWindow() {
   initUi();
@@ -66,6 +68,14 @@ void MainWindow::initUi() {
   ledMatrixItem->setData(QVariant::fromValue(std::make_tuple(6u, false)));
   ioRoot->appendRow(ledMatrixItem);
 
+  auto pinItem = new QStandardItem("Input Pin");
+  pinItem->setData(QVariant::fromValue(std::make_tuple(7u, false)));
+  ioRoot->appendRow(pinItem);
+
+  auto pinItem2 = new QStandardItem("Output Pin");
+  pinItem2->setData(QVariant::fromValue(std::make_tuple(8u, false)));
+  ioRoot->appendRow(pinItem2);
+
   auto schematicsRoot = new QStandardItem("Schematics");
   auto mainSchematicItem = new QStandardItem("main");
   mainSchematicItem->setData(QVariant::fromValue(std::make_tuple(0u, true)));
@@ -117,6 +127,22 @@ void MainWindow::initUi() {
 
       schematics[0].references.push_back(uiComponent);
 
+      circuitView->setPlacingComponent(uiComponent);
+
+      return;
+    }
+
+    if (id == 7u || id == 8u) {
+      auto uiComponent =
+          new PinUIComponent(context, currentSchematic->wireManager);
+
+      if (id == 8u) {
+        uiComponent->setType(PinUIComponent::Output);
+      } else {
+        uiComponent->setType(PinUIComponent::Input);
+      }
+
+      uiComponent->setUnderlyingComponent(currentSchematic->component.get());
       circuitView->setPlacingComponent(uiComponent);
 
       return;

@@ -172,7 +172,9 @@ void SchematicView::mousePressEvent(QMouseEvent *event) {
         }
 
         if (ok) {
-          schematic->component->addComponent(placingComponent->getComponent());
+          auto component = placingComponent->getComponent();
+          if (component != nullptr)
+            schematic->component->addComponent(component);
           placingComponent->init();
           schematic->uiComponents.emplace(placingComponent->getId(),
                                           std::move(placingComponent));

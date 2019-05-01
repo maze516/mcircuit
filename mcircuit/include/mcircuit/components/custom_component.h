@@ -15,10 +15,7 @@ using ComponentPin = std::tuple<mcircuit::Component *, mcircuit::Pin *>;
 
 struct PinWidthIncompatibleError : std::runtime_error {
   PinWidthIncompatibleError(ComponentPin componentPin1,
-                            ComponentPin componentPin2)
-      : std::runtime_error("incompatible pin widths"),
-        componentPin1{std::move(componentPin1)}, componentPin2{std::move(
-                                                     componentPin2)} {}
+                            ComponentPin componentPin2);
 
   ComponentPin componentPin1;
   ComponentPin componentPin2;
@@ -44,13 +41,13 @@ public:
   void disconnect(Component *c1, Pin *p1, Component *c2, Pin *p2);
   void disconnect(Component *c1, unsigned pin1, Component *c2, unsigned pin2);
 
-  Pin *addInputPin(Pin pin);
-  Pin *addOutputPin(Pin pin);
-
   std::tuple<Component *, Pin *> getFromId(unsigned componentId,
                                            unsigned pinId);
 
   Component *clone(unsigned id) override;
+
+  Pin *addInputPin(Pin pin) override;
+  Pin *addOutputPin(Pin pin) override;
 
 private:
   void updateNearPins(const Id &id);

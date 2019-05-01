@@ -38,7 +38,7 @@ QRect CustomComponentUIComponent::getBoundingBox() {
   auto outputs = component->getOutputs().size();
 
   auto w = 4 * gridDelta;
-  auto h = std::max(inputs, outputs) * gridDelta;
+  auto h = (std::max(inputs, outputs) + 1) * gridDelta;
 
   return QRect(getPosition() * gridDelta, QSize(w, h));
 }

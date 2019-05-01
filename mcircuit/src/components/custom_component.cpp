@@ -83,10 +83,6 @@ void CustomComponent::disconnect(Component *c1, unsigned p1, Component *c2,
   disconnect(c1, c1->getPin(p1), c2, c2->getPin(p2));
 }
 
-Pin *CustomComponent::addInputPin(Pin pin) { return addInputPin(pin); }
-
-Pin *CustomComponent::addOutputPin(Pin pin) { return addOutputPin(pin); }
-
 std::tuple<Component *, Pin *> CustomComponent::getFromId(unsigned componentId,
                                                           unsigned pinId) {
   Component *component;
@@ -117,6 +113,16 @@ Component *CustomComponent::clone(unsigned id) {
   cloned->wires = wires;
 
   return cloned;
+}
+
+Pin *CustomComponent::addInputPin(Pin pin) {
+  std::cout << "adding input " << pin.getId() << std::endl;
+  return Component::addInputPin(std::move(pin));
+}
+
+Pin *CustomComponent::addOutputPin(Pin pin) {
+  std::cout << "adding output " << pin.getId() << std::endl;
+  return Component::addOutputPin(std::move(pin));
 }
 
 void CustomComponent::updateNearPins(const Id &id) {
@@ -163,4 +169,11 @@ void CustomComponent::toposort(unsigned componentId,
 
   sortedComponentIds.push(componentId);
 }
+
+PinWidthIncompatibleError::PinWidthIncompatibleError(ComponentPin componentPin1,
+                                                     ComponentPin componentPin2)
+    : std::runtime_error("incompatible pin widths"),
+      componentPin1{std::move(componentPin1)}, componentPin2{
+                                                   std::move(componentPin2)} {}
+
 } // namespace mcircuit
