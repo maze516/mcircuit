@@ -107,8 +107,8 @@ void Renderer::createGridPixmap() {
   painter.setPen(QPen(Qt::black, 1.5, Qt::SolidLine, Qt::PenCapStyle::RoundCap,
                       Qt::PenJoinStyle::RoundJoin));
 
-  for (auto x = 0; x < gridPixmap.width(); x += gridDelta) {
-    for (auto y = 0; y < gridPixmap.height(); y += gridDelta) {
+  for (auto x = 1; x < gridPixmap.width(); x += gridDelta) {
+    for (auto y = 1; y < gridPixmap.height(); y += gridDelta) {
       painter.drawPoint(x, y);
     }
   }
